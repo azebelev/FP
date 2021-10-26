@@ -9,61 +9,44 @@ let source = "44.38,34.33,Алушта,31440,\n" +
   "#45.40,34.29,Джанкой,43343,\n" +
   "# в этом файле три строки-коммента :)";
 
-/*
-function will will transform string to object with specified properties
-*/
-let stringToObject = (str) => {
-  let obj = {};
-  ([obj.x, obj.y, obj.name, obj.population] = str.split(","));
-  return obj;
-}
-
-/*
-function adds current object as property to objectAccumulator 
-*/
-let objectCreator = (objectAccumulator, currentObject, index) => {
-
-  objectAccumulator[currentObject.name.replace(/[^а-щА-ЩЬьЮюЯяЇїІіЄєҐґ\s]/g, "")] = {
-    population: currentObject.population,
-    rating: index + 1
-  };
-  return objectAccumulator;
-}
 
 /*
 function transforms CVS text to object with properties(cities)
 */
-let makeOneObject = (source) => source.
-  split("\n")
+let makeOneObject = () => source
+  .split("\n")
   .filter(sentence => !sentence.startsWith("#"))
-  .map(stringToObject)
+  .map((str) => {
+    let obj = {};
+    ([obj.x, obj.y, obj.name, obj.population] = str.split(","));
+    return obj;
+  })
   .sort((a, b) => b.population - a.population)
   .slice(0, 3)
-  .reduce(objectCreator, {})
+  .reduce((objectAccumulator, currentObject, index) => {
 
-let cities = makeOneObject(source);
+    objectAccumulator[currentObject.name.replace(/[^а-щА-ЩЬьЮюЯяЇїІіЄєҐґ\s]/g, "")] = {
+      population: currentObject.population,
+      rating: index + 1
+    };
+    return objectAccumulator;
+  }, {});
 
-/*
-function returns transformed text as required
-*/
-let insertFullInformation = (townName) => {
 
-  return `${townName} (${cities[townName].rating} место в ТОП-10 самых крупных городов Украины, население ${cities[townName].population} человек)`
+let makeFunction = () => {
+
+  let cities = makeOneObject();
+
+  return function (text) {
+    Object.keys(cities).forEach(townName => {
+      let reg = new RegExp(townName, "gi")
+      if (text.includes(townName)) {
+        text = text.replace(reg,
+          `${townName} (${cities[townName].rating} место в ТОП-10 самых крупных городов Украины, население ${cities[townName].population} человек)`)
+      }
+    })
+    return text;
+  }
 }
-
-/**
- * function adds full information about cites
- * @param {*} text text witch required to be supplemented by aditional information
- * @returns supplemented tet
- */
-let addInformation = (text) => {
-  Object.keys(cities).forEach(key => {
-    console.log(key)
-    if (text.includes(key)) {
-      text = text.replace(key, insertFullInformation)
-    }
-  })
-  return text;
-}
-
-console.log(addInformation(" місто з гарними фонтанами це Вінниця а Біла Церква не далеко від Києва "))
+let addFullInf = makeFunction(source);
+console.log(addFullInf(" місто з гарними фонтанами це Вінниця Вінниця а Біла Церква не далеко від Києва "))
