@@ -32,7 +32,9 @@ let makeOneObject = () => source
     return objectAccumulator;
   }, {});
 
-
+/*
+function for closure (cities calculates at once)
+*/
 let makeFunction = () => {
 
   let cities = makeOneObject();
@@ -48,5 +50,9 @@ let makeFunction = () => {
     return text;
   }
 }
+
+/*
+closure (cities calculates at once)
+*/
 let addFullInf = makeFunction(source);
 console.log(addFullInf(" місто з гарними фонтанами це Вінниця Вінниця а Біла Церква не далеко від Києва "))
